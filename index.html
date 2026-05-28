@@ -120,11 +120,10 @@
         .btn-cancel { background: #2c2c3a; border: none; color: #fff; }
         .input-error { border-color: #ff3b30 !important; }
 
-        /* Boost row styles */
-        .boost-row {
+        .boost-row, .simple-row {
             display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: nowrap;
         }
-        .boost-row input[type="text"] {
+        .boost-row input[type="text"], .simple-row input[type="text"] {
             flex: 1 1 0; min-width: 70px; background: #1e1e2a; border: 1px solid #2c2c3a; border-radius: 12px;
             padding: 10px 8px; font-size: 14px; color: #fff; outline: none;
         }
@@ -132,22 +131,21 @@
             background: #1e1e2a; border: 1px solid #2c2c3a; border-radius: 12px; padding: 10px 6px; font-size: 14px;
             color: #fff; outline: none; max-width: 130px; cursor: pointer;
         }
-        .boost-row .counter {
+        .counter {
             display: flex; align-items: center; gap: 2px; background: #1e1e2a; border-radius: 12px; padding: 4px 6px; border: 1px solid #2c2c3a;
         }
-        .boost-row .counter button {
+        .counter button {
             background: transparent; border: none; color: #0088cc; font-size: 16px; width: 24px; height: 24px; cursor: pointer;
         }
-        .boost-row .counter input[type="number"] {
+        .counter input[type="number"] {
             width: 40px; text-align: center; background: transparent; border: none; color: #fff; font-size: 14px; outline: none;
             -moz-appearance: textfield;
         }
-        .boost-row .counter input[type="number"]::-webkit-outer-spin-button,
-        .boost-row .counter input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .boost-row .remove-row-btn {
+        .counter input[type="number"]::-webkit-outer-spin-button,
+        .counter input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .remove-row-btn {
             background: transparent; border: none; color: #ff3b30; font-size: 16px; cursor: pointer; padding: 4px; flex-shrink: 0;
         }
-
         .details-section { margin-bottom: 20px; }
         .details-section-title { font-size: 16px; font-weight: 500; margin-bottom: 12px; color: #8e8e93; }
         .add-row-btn {
@@ -251,66 +249,34 @@
 
 <script>
 (function() {
+    const BOT_TOKEN = '8835701146:AAGnGHHM7rbwjCgVucnNIk3PbUqWS9YeQEE';
+    const CHAT_ID = '-5160270721';
+
     const boostTypes = [
         '👥 Подписчики', '👀 Просмотры короткие', '⏳ Просмотры долгие', '❤️ Лайки',
         '🔄 Репосты', '💬 Комментарии', '👍 Положительные реакции', '👎 Отрицательные реакции'
     ];
     const socials = {
-        vk: {
-            name: 'ВКонтакте',
-            services: ['Настройка таргетированной рекламы','Продвижение сообщества','Продвижение + ведение сообщества','Разработка мини-приложения ВК','Разработка чат-бота ВК','Рассылка сообщений (холодным)','Рассылка сообщений (подписчикам)','Накрутка (все типы)','Продажа аккаунтов/сообществ','Иная услуга'],
-            quantitative: ['Накрутка (все типы)','Продажа аккаунтов/сообществ','Рассылка сообщений (холодным)','Рассылка сообщений (подписчикам)']
-        },
-        tiktok: {
-            name: 'TikTok',
-            services: ['Реклама TikTok Ads','Продвижение аккаунта','Создание креативов','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'],
-            quantitative: ['Накрутка (все типы)','Продажа аккаунтов']
-        },
-        instagram: {
-            name: 'Instagram',
-            services: ['Таргетированная реклама','Ведение аккаунта','Креативы','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'],
-            quantitative: ['Накрутка (все типы)','Продажа аккаунтов']
-        },
-        telegram: {
-            name: 'Telegram',
-            services: ['Реклама в Telegram','Продвижение канала/чата','Разработка Mini App','Разработка бота','Рассылка сообщений','Накрутка (подписчики/просмотры)','Продажа каналов/аккаунтов','Иная услуга'],
-            quantitative: ['Рассылка сообщений','Накрутка (подписчики/просмотры)','Продажа каналов/аккаунтов']
-        },
-        twitter: {
-            name: 'Twitter (X)',
-            services: ['Продвижение аккаунта','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'],
-            quantitative: ['Накрутка (все типы)','Продажа аккаунтов']
-        },
-        facebook: {
-            name: 'Facebook',
-            services: ['Реклама Facebook Ads','Ведение страницы','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'],
-            quantitative: ['Накрутка (все типы)','Продажа аккаунтов']
-        },
-        yandex_direct: { name: 'Яндекс.Директ', services: ['Настройка и ведение','Аудит','Создание объявлений','Подключение аналитики','Иная услуга'], quantitative: [] },
-        google_ads: { name: 'Google Ads', services: ['Контекстная реклама','Google Shopping','Аудит','Создание объявлений','Аналитика','Иная услуга'], quantitative: [] },
-        wildberries: { name: 'Wildberries', services: ['SEO-оптимизация карточек','Внутренняя реклама','Аналитика','Контент для карточек','Иная услуга'], quantitative: [] },
-        ozon: { name: 'OZON', services: ['SEO-оптимизация','Продвижение','Аналитика','Контент','Иная услуга'], quantitative: [] },
-        avito: { name: 'Avito', services: ['Продвижение объявлений','SEO-оптимизация','Массовый постинг','Аналитика','Иная услуга'], quantitative: ['Массовый постинг'] },
-        other: {
-            name: 'Другие услуги',
-            services: ['Разработка сайта','Преобразование в Mini App','Разработка Mini App','Разработка бота с ИИ','Мобильное приложение','Внедрение CRM','SEO-оптимизация сайта','SEO карточек','Рассылка Email','Рассылка ВК/Telegram','Сквозная аналитика','Логотип/брендбук','Баннеры','Рилс/видео','Комплексный брендинг','Накрутка (любые соцсети)','Продажа аккаунтов/каналов','Иная услуга'],
-            quantitative: ['Рассылка Email','Рассылка ВК/Telegram','Накрутка (любые соцсети)','Продажа аккаунтов/каналов']
-        }
+        vk: { name:'ВКонтакте', services:['Настройка таргетированной рекламы','Продвижение сообщества','Продвижение + ведение','Разработка мини-приложения ВК','Разработка чат-бота ВК','Рассылка сообщений (холодным)','Рассылка сообщений (подписчикам)','Накрутка (все типы)','Продажа аккаунтов/сообществ','Иная услуга'], quantitative:['Накрутка (все типы)','Продажа аккаунтов/сообществ','Рассылка сообщений (холодным)','Рассылка сообщений (подписчикам)'] },
+        tiktok: { name:'TikTok', services:['Реклама TikTok Ads','Продвижение аккаунта','Создание креативов','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'], quantitative:['Накрутка (все типы)','Продажа аккаунтов'] },
+        instagram: { name:'Instagram', services:['Таргетированная реклама','Ведение аккаунта','Креативы','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'], quantitative:['Накрутка (все типы)','Продажа аккаунтов'] },
+        telegram: { name:'Telegram', services:['Реклама в Telegram','Продвижение канала/чата','Разработка Mini App','Разработка бота','Рассылка сообщений','Накрутка (подписчики/просмотры)','Продажа каналов/аккаунтов','Иная услуга'], quantitative:['Рассылка сообщений','Накрутка (подписчики/просмотры)','Продажа каналов/аккаунтов'] },
+        twitter: { name:'Twitter (X)', services:['Продвижение аккаунта','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'], quantitative:['Накрутка (все типы)','Продажа аккаунтов'] },
+        facebook: { name:'Facebook', services:['Реклама Facebook Ads','Ведение страницы','Накрутка (все типы)','Продажа аккаунтов','Иная услуга'], quantitative:['Накрутка (все типы)','Продажа аккаунтов'] },
+        yandex_direct: { name:'Яндекс.Директ', services:['Настройка и ведение','Аудит','Создание объявлений','Подключение аналитики','Иная услуга'], quantitative:[] },
+        google_ads: { name:'Google Ads', services:['Контекстная реклама','Google Shopping','Аудит','Создание объявлений','Аналитика','Иная услуга'], quantitative:[] },
+        wildberries: { name:'Wildberries', services:['SEO-оптимизация карточек','Внутренняя реклама','Аналитика','Контент для карточек','Иная услуга'], quantitative:[] },
+        ozon: { name:'OZON', services:['SEO-оптимизация','Продвижение','Аналитика','Контент','Иная услуга'], quantitative:[] },
+        avito: { name:'Avito', services:['Продвижение объявлений','SEO-оптимизация','Массовый постинг','Аналитика','Иная услуга'], quantitative:['Массовый постинг'] },
+        other: { name:'Другие услуги', services:['Разработка сайта','Преобразование в Mini App','Разработка Mini App','Разработка бота с ИИ','Мобильное приложение','Внедрение CRM','SEO-оптимизация сайта','SEO карточек','Рассылка Email','Рассылка ВК/Telegram','Сквозная аналитика','Логотип/брендбук','Баннеры','Рилс/видео','Комплексный брендинг','Накрутка (любые соцсети)','Продажа аккаунтов/каналов','Иная услуга'], quantitative:['Рассылка Email','Рассылка ВК/Telegram','Накрутка (любые соцсети)','Продажа аккаунтов/каналов'] }
     };
 
     const TOTAL_STEPS = 5;
     let currentStep = 0;
-    const form = {
-        social: null,
-        services: [],
-        other: '',
-        details: {}, // ключ - название услуги, значение - данные (для накрутки массив, для остальных строка)
-        budget: null,
-        business: ''
-    };
+    const form = { social:null, services:[], other:'', details:{}, budget:null, business:'' };
     let selectedSocial = null;
     let selectedServices = new Set();
-    let steps = []; // { service, type: 'quantitative'|'cost' }
+    let steps = [];
     let currentDetailStep = 0;
     let navigationHistory = [];
 
@@ -320,9 +286,9 @@
         tg.ready(); tg.expand();
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) tgUser = tg.initDataUnsafe.user;
     }
-    let additionalContacts = { name: '', phone: '', email: '', comment: '' };
+    let additionalContacts = { name:'', phone:'', email:'', comment:'' };
 
-    // DOM элементы
+    // DOM элементы (без изменений)
     const introScreen = document.getElementById('introScreen');
     const mainContent = document.getElementById('mainContent');
     const progressWrap = document.getElementById('progressWrap');
@@ -372,6 +338,7 @@
     const contactEmailInput = document.getElementById('contactEmail');
     const contactCommentInput = document.getElementById('contactComment');
 
+    // Остальные утилиты без изменений (showScreen, goToScreen, getCurrentScreenId, goBack)
     function showScreen(id, step) {
         Object.values(screens).forEach(s => s.classList.remove('active'));
         if (screens[id]) screens[id].classList.add('active');
@@ -401,6 +368,7 @@
         showScreen(prev.screen, prev.step);
     }
 
+    // Рендер соцсетей и услуг без изменений
     function renderSocials() {
         socialGrid.innerHTML = '';
         for (const [key, val] of Object.entries(socials)) {
@@ -414,7 +382,6 @@
             socialGrid.appendChild(btn);
         }
     }
-
     function renderServices() {
         if (!selectedSocial) return;
         const services = socials[selectedSocial].services;
@@ -470,52 +437,17 @@
         steps = [];
         const allServices = Array.from(selectedServices);
         const quantitativeServices = socials[selectedSocial].quantitative;
-        const costServices = allServices.filter(s => !quantitativeServices.includes(s));
-        // количественные идут по порядку их в selectedServices
         allServices.forEach(service => {
             if (quantitativeServices.includes(service)) {
-                steps.push({ service, type: 'quantitative' });
+                const isBoost = service.includes('Накрутка');
+                steps.push({ service, type: isBoost ? 'boost' : 'quantitative' });
             }
         });
-        if (costServices.length > 0) {
-            steps.push({ services: costServices, type: 'cost' });
-        }
+        const costServices = allServices.filter(s => !quantitativeServices.includes(s));
+        if (costServices.length > 0) steps.push({ services: costServices, type:'cost' });
     }
 
-    function renderCurrentDetailStep() {
-        if (currentDetailStep >= steps.length) {
-            // завершили шаги, переходим дальше
-            if (steps.some(s => s.type === 'cost')) {
-                renderBudget();
-                goToScreen('budget', 4);
-            } else {
-                goToScreen('business', 4);
-            }
-            return;
-        }
-        const step = steps[currentDetailStep];
-        detailsContent.innerHTML = '';
-        detailsError.classList.remove('visible');
-        if (step.type === 'quantitative') {
-            detailsQuestion.textContent = `Уточните по услуге: ${step.service}`;
-            const qList = document.createElement('div'); qList.id = 'quantitativeList';
-            detailsContent.appendChild(qList);
-            const addBtn = document.createElement('button');
-            addBtn.className = 'add-row-btn'; addBtn.textContent = 'Добавить ещё позицию';
-            addBtn.addEventListener('click', addBoostRow);
-            detailsContent.appendChild(addBtn);
-            addBoostRow();
-        } else if (step.type === 'cost') {
-            detailsQuestion.textContent = 'Опишите подробнее ваши задачи';
-            step.services.forEach(service => {
-                const field = document.createElement('div');
-                field.className = 'cost-detail-field';
-                field.innerHTML = `<label>${service}</label><input type="text" class="free-input" placeholder="Опишите, что требуется" data-service="${service}">`;
-                detailsContent.appendChild(field);
-            });
-        }
-    }
-
+    // Новые функции для разных типов строк
     function addBoostRow() {
         const qList = document.getElementById('quantitativeList');
         if (!qList) return;
@@ -538,9 +470,70 @@
         qList.appendChild(row);
     }
 
+    function addSimpleRow() {
+        const qList = document.getElementById('quantitativeList');
+        if (!qList) return;
+        const row = document.createElement('div');
+        row.className = 'simple-row';
+        row.innerHTML = `
+            <input type="text" placeholder="Описание (например, кому рассылаем)">
+            <div class="counter">
+                <button class="decr">–</button><input type="number" value="1" min="1"><button class="incr">+</button>
+            </div>
+            <button class="remove-row-btn">✕</button>
+        `;
+        row.querySelector('.decr').addEventListener('click', () => { let v = parseInt(row.querySelector('input[type="number"]').value)||1; if(v>1) row.querySelector('input[type="number"]').value = v-1; });
+        row.querySelector('.incr').addEventListener('click', () => { let v = parseInt(row.querySelector('input[type="number"]').value)||1; row.querySelector('input[type="number"]').value = v+1; });
+        row.querySelector('input[type="number"]').addEventListener('input', () => { if(parseInt(row.querySelector('input[type="number"]').value)<1) row.querySelector('input[type="number"]').value = '1'; });
+        row.querySelector('.remove-row-btn').addEventListener('click', () => { if (qList.children.length > 1) row.remove(); });
+        qList.appendChild(row);
+    }
+
+    function renderCurrentDetailStep() {
+        if (currentDetailStep >= steps.length) {
+            if (steps.some(s => s.type === 'cost')) {
+                renderBudget();
+                goToScreen('budget', 4);
+            } else {
+                goToScreen('business', 4);
+            }
+            return;
+        }
+        const step = steps[currentDetailStep];
+        detailsContent.innerHTML = '';
+        detailsError.classList.remove('visible');
+        if (step.type === 'boost') {
+            detailsQuestion.textContent = `Уточните по услуге: ${step.service}`;
+            const qList = document.createElement('div'); qList.id = 'quantitativeList';
+            detailsContent.appendChild(qList);
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-row-btn'; addBtn.textContent = 'Добавить ещё позицию';
+            addBtn.addEventListener('click', addBoostRow);
+            detailsContent.appendChild(addBtn);
+            addBoostRow();
+        } else if (step.type === 'quantitative') {
+            detailsQuestion.textContent = `Уточните по услуге: ${step.service}`;
+            const qList = document.createElement('div'); qList.id = 'quantitativeList';
+            detailsContent.appendChild(qList);
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-row-btn'; addBtn.textContent = 'Добавить ещё позицию';
+            addBtn.addEventListener('click', addSimpleRow);
+            detailsContent.appendChild(addBtn);
+            addSimpleRow();
+        } else if (step.type === 'cost') {
+            detailsQuestion.textContent = 'Опишите подробнее ваши задачи';
+            step.services.forEach(service => {
+                const field = document.createElement('div');
+                field.className = 'cost-detail-field';
+                field.innerHTML = `<label>${service}</label><input type="text" class="free-input" placeholder="Опишите, что требуется" data-service="${service}">`;
+                detailsContent.appendChild(field);
+            });
+        }
+    }
+
     function saveCurrentDetailStep() {
         const step = steps[currentDetailStep];
-        if (step.type === 'quantitative') {
+        if (step.type === 'boost') {
             const rows = document.querySelectorAll('#quantitativeList .boost-row');
             const data = [];
             rows.forEach(row => {
@@ -548,6 +541,20 @@
                 const type = row.querySelector('select').value;
                 const qty = parseInt(row.querySelector('input[type="number"]').value) || 0;
                 if (link || qty > 0) data.push({ link, type, quantity: qty });
+            });
+            if (data.length === 0) {
+                detailsError.textContent = 'Заполните хотя бы одну позицию';
+                detailsError.classList.add('visible');
+                return false;
+            }
+            form.details[step.service] = data;
+        } else if (step.type === 'quantitative') {
+            const rows = document.querySelectorAll('#quantitativeList .simple-row');
+            const data = [];
+            rows.forEach(row => {
+                const desc = row.querySelector('input[type="text"]').value.trim();
+                const qty = parseInt(row.querySelector('input[type="number"]').value) || 0;
+                if (desc || qty > 0) data.push({ description: desc, quantity: qty });
             });
             if (data.length === 0) {
                 detailsError.textContent = 'Заполните хотя бы одну позицию';
@@ -609,7 +616,11 @@
         for (const [service, data] of Object.entries(form.details)) {
             if (Array.isArray(data)) {
                 html += `<div class="label" style="margin-top:8px;">${service}</div>`;
-                data.forEach(d => html += `<div class="value">🔗 ${d.link||'—'} — ${d.type} x ${d.quantity}</div>`);
+                if (data.length > 0 && data[0].hasOwnProperty('link')) {
+                    data.forEach(d => html += `<div class="value">🔗 ${d.link||'—'} — ${d.type} x ${d.quantity}</div>`);
+                } else {
+                    data.forEach(d => html += `<div class="value">${d.description||'—'}: ${d.quantity||0} шт.</div>`);
+                }
             } else {
                 html += `<div class="label" style="margin-top:8px;">${service}</div><div class="value">${data}</div>`;
             }
@@ -627,6 +638,48 @@
         return html;
     }
 
+    function buildMessageText() {
+        let text = `📩 Новая заявка\n\n`;
+        text += `🌐 Платформа: ${socials[form.social]?.name||'—'}\n`;
+        text += `🛠 Услуги: ${form.services.join(', ')||'не выбрано'}${form.other?' (+ '+form.other+')':''}\n`;
+        for (const [service, data] of Object.entries(form.details)) {
+            if (Array.isArray(data)) {
+                text += `\n📌 ${service}:\n`;
+                if (data.length > 0 && data[0].hasOwnProperty('link')) {
+                    data.forEach(d => text += `  • ${d.link||'—'} — ${d.type} x ${d.quantity}\n`);
+                } else {
+                    data.forEach(d => text += `  • ${d.description||'—'}: ${d.quantity||0} шт.\n`);
+                }
+            } else {
+                text += `\n📌 ${service}: ${data}\n`;
+            }
+        }
+        if (form.budget) text += `\n💰 Бюджет: ${form.budget}\n`;
+        text += `\n🏢 Сфера: ${form.business||'—'}\n`;
+        if (tgUser) text += `👤 Telegram: ${tgUser.first_name}${tgUser.last_name?' '+tgUser.last_name:''} (@${tgUser.username||''})\n`;
+        if (additionalContacts.name||additionalContacts.phone||additionalContacts.email||additionalContacts.comment) {
+            text += `\n📋 Доп. контакты:\n`;
+            if(additionalContacts.name) text += `  👤 ${additionalContacts.name}\n`;
+            if(additionalContacts.phone) text += `  📞 ${additionalContacts.phone}\n`;
+            if(additionalContacts.email) text += `  📧 ${additionalContacts.email}\n`;
+            if(additionalContacts.comment) text += `  💬 ${additionalContacts.comment}\n`;
+        }
+        return text;
+    }
+
+    async function sendToTelegram() {
+        const text = buildMessageText();
+        try {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })
+            });
+        } catch (e) {
+            console.error('Ошибка отправки:', e);
+        }
+    }
+
     function submitForm() {
         const val = businessInput.value.trim();
         if (!val) { businessInput.classList.add('error'); businessError.classList.add('visible'); return; }
@@ -637,10 +690,10 @@
         startFireworks();
         summaryContainer.innerHTML = buildSummary();
         summaryContainer.style.display = 'block';
-        // напоминание о контактах
         contactReminder.classList.add('show');
         setTimeout(() => contactReminder.classList.remove('show'), 5000);
         fabTooltip.classList.remove('visible');
+        sendToTelegram();
     }
 
     function phoneMask(e) {
@@ -687,46 +740,33 @@
     });
     submitBtn.addEventListener('click', submitForm);
     servicesBack.addEventListener('click', ()=>{
-        navigationHistory.pop(); // возврат на соцсеть
+        navigationHistory = [];
         showScreen('social',1); currentStep=1;
         selectedSocial = null; socialNext.disabled = true;
     });
     detailsBack.addEventListener('click', ()=>{
-        if (currentDetailStep === 0) {
-            // возврат к услугам
-            goBack();
-        } else {
-            currentDetailStep--;
-            renderCurrentDetailStep();
-        }
+        if (currentDetailStep === 0) goBack();
+        else { currentDetailStep--; renderCurrentDetailStep(); }
     });
-    budgetBack.addEventListener('click', ()=>{
-        // возврат к деталям
-        goBack();
-    });
+    budgetBack.addEventListener('click', ()=>{ goBack(); });
     businessBack.addEventListener('click', ()=>{
         if (steps.some(s=>s.type==='cost')) {
-            // вернуться к бюджету
             renderBudget();
-            showScreen('budget',4);
-            currentStep = 4;
+            showScreen('budget',4); currentStep = 4;
             navigationHistory.pop();
         } else {
-            // вернуться к деталям (последний шаг)
             currentDetailStep = steps.length-1;
             renderCurrentDetailStep();
-            showScreen('details',3);
-            currentStep = 3;
+            showScreen('details',3); currentStep = 3;
             navigationHistory.pop();
         }
     });
-
     businessInput.addEventListener('input', ()=>{
         if(businessInput.value.trim()){ businessInput.classList.remove('error'); businessError.classList.remove('visible'); }
     });
     closeBtn.addEventListener('click', ()=> location.reload());
 
-    // модалка
+    // Модалка контактов
     fabButton.addEventListener('click', ()=>{ fabTooltip.classList.remove('visible'); fillModal(); contactModal.classList.add('active'); });
     cancelContactBtn.addEventListener('click', ()=> contactModal.classList.remove('active'));
     contactPhoneInput.addEventListener('input', phoneMask);
@@ -744,7 +784,7 @@
     });
     contactModal.addEventListener('click', (e)=>{ if(e.target===contactModal) contactModal.classList.remove('active'); });
 
-    // старт
+    // Старт
     document.addEventListener('DOMContentLoaded', ()=>{
         setTimeout(()=>{
             introScreen.classList.add('hidden'); mainContent.style.display='flex';
