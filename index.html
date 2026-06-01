@@ -6,7 +6,7 @@
     <title>Расчёт цены</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* ———————— ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ———————— */
+        /* Все стили остаются без изменений, как в предыдущей версии */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -211,7 +211,7 @@
                 <div class="checkmark-circle">
                     <svg class="checkmark" viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
                 </div>
-                <div class="success-text">Спасибо за заявку!<br>Рассчитаем в течение дня</div>
+                <div class="success-text"><tg-emoji emoji-id="5420315771991497307">🔥</tg-emoji> Спасибо за заявку!<br>Мы уже приступили к расчёту и скоро свяжемся с вами.</div>
                 <div class="contact-reminder" id="contactReminder">Не забудьте оставить дополнительные контакты для связи</div>
                 <div id="summaryContainer" class="summary-block"></div>
                 <button id="closeBtn" class="primary-btn" style="margin-top:8px;" data-action="close" type="button">Закрыть</button>
@@ -244,7 +244,7 @@
 (function() {
     // ========== ИСПРАВЛЕННЫЕ ДАННЫЕ ==========
     const BOT_TOKEN = '8835701146:AAEbcx3j76Udnek14zMBwd7QFUfuveBnX4I';
-    const GROUP_CHAT_ID = '-5160270721';                  // НОВЫЙ ID группы "Egor и Алексей"
+    const GROUP_CHAT_ID = '-5160270721';   // Новая группа (Egor и Алексей)
     const BOT_USERNAME = '@Keis_Marketing_bot';
 
     const boostTypes = [
@@ -661,67 +661,75 @@
         businessInput.classList.remove('error'); businessError.classList.remove('visible');
         form.business = val;
 
-        const summaryHtml = buildSummary();
-        // Формируем КРАСИВОЕ сообщение для группы с HTML-разметкой
-        const groupMessage = `
-📩 <b>НОВАЯ ЗАЯВКА С MINI APP</b>
-━━━━━━━━━━━━━━━━━━━━
-<b>📌 Платформа:</b> ${socials[form.social]?.name||'—'}
-<b>🧩 Услуги:</b> ${form.services.join(', ')||'не выбрано'}${form.other ? ' (+ ' + form.other + ')' : ''}
-
-${(() => {
-    let detailsStr = '';
-    const detailsByService = {};
-    form.details.forEach(d => {
-        if (!detailsByService[d.service]) detailsByService[d.service] = [];
-        detailsByService[d.service].push(d);
-    });
-    for (const [service, items] of Object.entries(detailsByService)) {
-        detailsStr += `\n<b>📌 ${service}</b>\n`;
-        items.forEach(item => {
-            if (item.link) {
-                detailsStr += `🔗 ${item.link} — ${item.type} x ${item.quantity}\n`;
-            } else {
-                detailsStr += `${item.description} — ${item.quantity} шт.\n`;
-            }
+        // Формируем красивый HTML для заявки в группу
+        const platform = socials[form.social]?.name || '—';
+        const servicesListStr = form.services.join(', ') + (form.other ? ' (+ ' + form.other + ')' : '');
+        
+        let detailsHtml = '';
+        const detailsByService = {};
+        form.details.forEach(d => {
+            if (!detailsByService[d.service]) detailsByService[d.service] = [];
+            detailsByService[d.service].push(d);
         });
-    }
-    if (form.costDescriptions && Object.keys(form.costDescriptions).length > 0) {
-        detailsStr += `\n<b>📝 Описание задач:</b>\n`;
-        for (const [service, desc] of Object.entries(form.costDescriptions)) {
-            detailsStr += `<b>${service}:</b> ${desc}\n`;
+        for (const [service, items] of Object.entries(detailsByService)) {
+            detailsHtml += `<b>📌 ${service}:</b>\n`;
+            items.forEach(item => {
+                if (item.link) {
+                    detailsHtml += `   🔗 ${item.link} — ${item.type} x ${item.quantity}\n`;
+                } else {
+                    detailsHtml += `   📝 ${item.description} — ${item.quantity} шт.\n`;
+                }
+            });
         }
-    }
-    return detailsStr || '';
-})()}
-
-<b>💰 Бюджет:</b> ${form.budget||'не указан'}
-<b>🏢 Сфера деятельности:</b> ${form.business}
-${tgUser ? `<b>👤 Telegram:</b> ${tgUser.first_name}${tgUser.last_name ? ' '+tgUser.last_name : ''} (@${tgUser.username||''})` : ''}
-${additionalContacts.name || additionalContacts.phone || additionalContacts.email || additionalContacts.comment ? 
-`\n<b>📋 Дополнительные контакты:</b>\n${additionalContacts.name ? `👤 ${additionalContacts.name}\n` : ''}${additionalContacts.phone ? `📞 ${additionalContacts.phone}\n` : ''}${additionalContacts.email ? `📧 ${additionalContacts.email}\n` : ''}${additionalContacts.comment ? `💬 ${additionalContacts.comment}` : ''}` : ''}
-━━━━━━━━━━━━━━━━━━━━
-        `.trim();
-
+        
+        let costDescHtml = '';
+        if (form.costDescriptions && Object.keys(form.costDescriptions).length > 0) {
+            costDescHtml = '<b>📋 Описание задач:</b>\n';
+            for (const [service, desc] of Object.entries(form.costDescriptions)) {
+                costDescHtml += `   • ${service}: ${desc}\n`;
+            }
+        }
+        
+        let contactsHtml = '';
+        if (additionalContacts.name || additionalContacts.phone || additionalContacts.email || additionalContacts.comment) {
+            contactsHtml = '<b>📞 Дополнительные контакты:</b>\n';
+            if (additionalContacts.name) contactsHtml += `   👤 ${additionalContacts.name}\n`;
+            if (additionalContacts.phone) contactsHtml += `   📞 ${additionalContacts.phone}\n`;
+            if (additionalContacts.email) contactsHtml += `   📧 ${additionalContacts.email}\n`;
+            if (additionalContacts.comment) contactsHtml += `   💬 ${additionalContacts.comment}\n`;
+        }
+        
+        const userInfo = tgUser ? `${tgUser.first_name}${tgUser.last_name ? ' ' + tgUser.last_name : ''} (@${tgUser.username || ''})` : '—';
+        
+        const beautifulText = `📩 <b>НОВАЯ ЗАЯВКА С MINI APP</b>\n\n` +
+            `<b>🌐 Платформа:</b> ${platform}\n` +
+            `<b>🛠 Услуги:</b> ${servicesListStr}\n` +
+            (detailsHtml ? `\n<b>🔧 Детали:</b>\n${detailsHtml}` : '') +
+            (costDescHtml ? `\n${costDescHtml}` : '') +
+            `\n<b>💰 Бюджет:</b> ${form.budget || '—'}\n` +
+            `<b>🏢 Сфера деятельности:</b> ${form.business}\n` +
+            `<b>👤 Telegram:</b> ${userInfo}\n` +
+            (contactsHtml ? `\n${contactsHtml}` : '');
+        
         let channelError = null;
         try {
-            await sendMessageToTelegram(GROUP_CHAT_ID, groupMessage, 'HTML');
+            await sendMessageToTelegram(GROUP_CHAT_ID, beautifulText, 'HTML');
         } catch (e) {
             channelError = e.message;
         }
 
         // Благодарность пользователю с кастомным эмодзи 🔥
+        const thanksText = '<tg-emoji emoji-id="5420315771991497307">🔥</tg-emoji> Спасибо за заявку! Мы уже приступили к расчёту и скоро свяжемся с вами.';
         if (tgUser && tgUser.id) {
             try {
-                const thankYouText = `<tg-emoji emoji-id="5420315771991497307">🔥</tg-emoji> <b>Спасибо за заявку!</b> Мы уже приступили к расчёту и скоро свяжемся с вами.`;
-                await sendMessageToTelegram(tgUser.id, thankYouText, 'HTML');
+                await sendMessageToTelegram(tgUser.id, thanksText, 'HTML');
             } catch (e) {}
         }
 
         showScreen('success', 0);
         successAnim.classList.add('show');
         startFireworks();
-        summaryContainer.innerHTML = summaryHtml;
+        summaryContainer.innerHTML = buildSummary();
         summaryContainer.style.display = 'block';
         contactReminder.classList.add('show');
         setTimeout(() => contactReminder.classList.remove('show'), 5000);
@@ -759,7 +767,6 @@ ${additionalContacts.name || additionalContacts.phone || additionalContacts.emai
         }
     }
 
-    // Глобальный обработчик кликов (сохранён без изменений)
     document.addEventListener('click', function(e) {
         if (e.target === contactModal) {
             contactModal.classList.remove('active');
