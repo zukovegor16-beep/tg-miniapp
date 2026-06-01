@@ -241,9 +241,10 @@
 
 <script>
 (function() {
-    const BOT_TOKEN = '8835701146:AAGnGHHM7rbwjCgVucnNIk3PbUqWS9YeQEE';
-    const GROUP_CHAT_ID = '-1003992276978'; // ваш канал Keis_MarketologPro
-    const BOT_USERNAME = '@YourBot'; // <-- замените на username вашего бота
+    // ========== ИСПРАВЛЕННЫЕ ДАННЫЕ ==========
+    const BOT_TOKEN = '8835701146:AAEbcx3j76Udnek14zMBwd7QFUfuveBnX4I';   // ваш токен
+    const GROUP_CHAT_ID = '-1003719315754';                              // правильный ID группы
+    const BOT_USERNAME = '@Keis_Marketing_bot';                          // юзернейм бота (для отображения)
 
     const boostTypes = [
         '👥 Подписчики', '👀 Просмотры короткие', '⏳ Просмотры долгие', '❤️ Лайки',
@@ -664,7 +665,7 @@
 
         let channelError = null;
 
-        // 1. Отправка в канал
+        // 1. Отправка в группу (канал)
         try {
             await sendMessageToTelegram(GROUP_CHAT_ID, '📩 <b>Новая заявка с Mini App</b>\n\n' + plainText, 'HTML');
         } catch (e) {
@@ -689,7 +690,7 @@
         fabTooltip.classList.remove('visible');
 
         if (channelError) {
-            showSendError(`Заявка принята, но не доставлена в канал: ${channelError}. Убедитесь, что бот ${BOT_USERNAME} добавлен в канал как администратор.`);
+            showSendError(`Заявка принята, но не доставлена в группу: ${channelError}. Убедитесь, что бот ${BOT_USERNAME} добавлен в группу как администратор.`);
         }
         return true;
     }
