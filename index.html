@@ -6,6 +6,7 @@
     <title>Расчёт цены</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* ———————— ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ———————— */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -242,9 +243,9 @@
 <script>
 (function() {
     // ========== ИСПРАВЛЕННЫЕ ДАННЫЕ ==========
-    const BOT_TOKEN = '8835701146:AAEbcx3j76Udnek14zMBwd7QFUfuveBnX4I';   // ваш токен
-    const GROUP_CHAT_ID = '-1003719315754';                              // правильный ID группы
-    const BOT_USERNAME = '@Keis_Marketing_bot';                          // юзернейм бота (для отображения)
+    const BOT_TOKEN = '8835701146:AAEbcx3j76Udnek14zMBwd7QFUfuveBnX4I';
+    const GROUP_CHAT_ID = '-5160270721';                  // НОВЫЙ ID группы "Egor и Алексей"
+    const BOT_USERNAME = '@Keis_Marketing_bot';
 
     const boostTypes = [
         '👥 Подписчики', '👀 Просмотры короткие', '⏳ Просмотры долгие', '❤️ Лайки',
@@ -661,25 +662,62 @@
         form.business = val;
 
         const summaryHtml = buildSummary();
-        const plainText = summaryHtml.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, '');
+        // Формируем КРАСИВОЕ сообщение для группы с HTML-разметкой
+        const groupMessage = `
+📩 <b>НОВАЯ ЗАЯВКА С MINI APP</b>
+━━━━━━━━━━━━━━━━━━━━
+<b>📌 Платформа:</b> ${socials[form.social]?.name||'—'}
+<b>🧩 Услуги:</b> ${form.services.join(', ')||'не выбрано'}${form.other ? ' (+ ' + form.other + ')' : ''}
+
+${(() => {
+    let detailsStr = '';
+    const detailsByService = {};
+    form.details.forEach(d => {
+        if (!detailsByService[d.service]) detailsByService[d.service] = [];
+        detailsByService[d.service].push(d);
+    });
+    for (const [service, items] of Object.entries(detailsByService)) {
+        detailsStr += `\n<b>📌 ${service}</b>\n`;
+        items.forEach(item => {
+            if (item.link) {
+                detailsStr += `🔗 ${item.link} — ${item.type} x ${item.quantity}\n`;
+            } else {
+                detailsStr += `${item.description} — ${item.quantity} шт.\n`;
+            }
+        });
+    }
+    if (form.costDescriptions && Object.keys(form.costDescriptions).length > 0) {
+        detailsStr += `\n<b>📝 Описание задач:</b>\n`;
+        for (const [service, desc] of Object.entries(form.costDescriptions)) {
+            detailsStr += `<b>${service}:</b> ${desc}\n`;
+        }
+    }
+    return detailsStr || '';
+})()}
+
+<b>💰 Бюджет:</b> ${form.budget||'не указан'}
+<b>🏢 Сфера деятельности:</b> ${form.business}
+${tgUser ? `<b>👤 Telegram:</b> ${tgUser.first_name}${tgUser.last_name ? ' '+tgUser.last_name : ''} (@${tgUser.username||''})` : ''}
+${additionalContacts.name || additionalContacts.phone || additionalContacts.email || additionalContacts.comment ? 
+`\n<b>📋 Дополнительные контакты:</b>\n${additionalContacts.name ? `👤 ${additionalContacts.name}\n` : ''}${additionalContacts.phone ? `📞 ${additionalContacts.phone}\n` : ''}${additionalContacts.email ? `📧 ${additionalContacts.email}\n` : ''}${additionalContacts.comment ? `💬 ${additionalContacts.comment}` : ''}` : ''}
+━━━━━━━━━━━━━━━━━━━━
+        `.trim();
 
         let channelError = null;
-
-        // 1. Отправка в группу (канал)
         try {
-            await sendMessageToTelegram(GROUP_CHAT_ID, '📩 <b>Новая заявка с Mini App</b>\n\n' + plainText, 'HTML');
+            await sendMessageToTelegram(GROUP_CHAT_ID, groupMessage, 'HTML');
         } catch (e) {
             channelError = e.message;
         }
 
-        // 2. Благодарность пользователю (если есть ID)
+        // Благодарность пользователю с кастомным эмодзи 🔥
         if (tgUser && tgUser.id) {
             try {
-                await sendMessageToTelegram(tgUser.id, 'Спасибо за заявку! Мы уже приступили к расчёту и скоро свяжемся с вами.');
+                const thankYouText = `<tg-emoji emoji-id="5420315771991497307">🔥</tg-emoji> <b>Спасибо за заявку!</b> Мы уже приступили к расчёту и скоро свяжемся с вами.`;
+                await sendMessageToTelegram(tgUser.id, thankYouText, 'HTML');
             } catch (e) {}
         }
 
-        // Показываем успех в любом случае
         showScreen('success', 0);
         successAnim.classList.add('show');
         startFireworks();
@@ -721,7 +759,7 @@
         }
     }
 
-    // ---------- ГЛОБАЛЬНЫЙ ОБРАБОТЧИК КЛИКОВ ----------
+    // Глобальный обработчик кликов (сохранён без изменений)
     document.addEventListener('click', function(e) {
         if (e.target === contactModal) {
             contactModal.classList.remove('active');
