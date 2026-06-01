@@ -195,7 +195,8 @@
             <div class="error-text" id="businessError">Вы забыли ответить</div>
             <div class="nav-row">
                 <button class="back-btn" data-action="back" data-screen="business" type="button"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
-                <button id="submitBtn" class="primary-btn" data-action="submit" type="button">Отправить заявку</button>
+                <!-- Заменено: теперь это кнопка "Далее", которая отправляет заявку -->
+                <button id="businessNext" class="primary-btn" data-action="next" data-step="5" type="button">Далее</button>
             </div>
         </div>
         <div id="success-screen" class="screen">
@@ -304,7 +305,7 @@
     const budgetError = $('budgetError');
     const businessInput = $('businessInput');
     const businessError = $('businessError');
-    const submitBtn = $('submitBtn');
+    const businessNext = $('businessNext'); // теперь основная кнопка на последнем шаге
     const closeBtn = $('closeBtn');
     const fireworksCanvas = $('fireworksCanvas');
     const successAnim = $('successAnim');
@@ -641,19 +642,17 @@
         }
     }
 
-    async function submitForm() {
+    function submitForm() {
         const val = businessInput.value.trim();
-        if (!val) { businessInput.classList.add('error'); businessError.classList.add('visible'); return; }
+        if (!val) { businessInput.classList.add('error'); businessError.classList.add('visible'); return false; }
         businessInput.classList.remove('error'); businessError.classList.remove('visible');
         form.business = val;
 
         const summaryHtml = buildSummary();
         const plainText = summaryHtml.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, '');
 
-        // Отправляем заявку в группу (не ждём ответа, чтобы не блокировать интерфейс)
+        // Отправка в группу и пользователю
         sendMessageToTelegram(GROUP_CHAT_ID, '📩 <b>Новая заявка с Mini App</b>\n\n' + plainText, 'HTML');
-
-        // Благодарность пользователю в личку (если есть ID)
         if (tgUser && tgUser.id) {
             sendMessageToTelegram(tgUser.id, 'Спасибо за заявку! Мы уже приступили к расчёту и скоро свяжемся с вами.');
         }
@@ -666,6 +665,7 @@
         contactReminder.classList.add('show');
         setTimeout(() => contactReminder.classList.remove('show'), 5000);
         fabTooltip.classList.remove('visible');
+        return true;
     }
 
     function phoneMask(e) {
@@ -686,7 +686,6 @@
         contactComment.value = additionalContacts.comment || '';
     }
 
-    // Закрыть Web App или перезагрузить страницу
     function closeApp() {
         if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.close === 'function') {
             window.Telegram.WebApp.close();
@@ -745,8 +744,12 @@
                     }
                     form.budget = radio.value;
                     showScreen('business', 5);
+                } else if (step === 5) {
+                    // Последний шаг: отправка заявки
+                    submitForm();
                 }
             }
+            // Обработчик 'submit' больше не нужен, но оставим для совместимости
             else if (action === 'submit') {
                 submitForm();
             }
